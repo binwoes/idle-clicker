@@ -8,12 +8,13 @@
 import Foundation
 import SpriteKit
 
+protocol MonsterDelegate {
+    func monsterClicked(_ monster: Monster)
+}
+
 class Monster: SKSpriteNode {
     
-    public var monsterNameData = [String]()
-    public var monsterImageData = [String]()
-    public var monsterHealth = 10
-
+    var delegate: MonsterDelegate?
 
     init(texture: SKTexture? = nil, size: CGSize, position: CGPoint, color: UIColor? = nil, name: String? = nil) {
         super.init(texture: texture, color: color ?? .clear, size: size)
@@ -21,6 +22,10 @@ class Monster: SKSpriteNode {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.delegate?.monsterClicked(self)
     }
 }
 

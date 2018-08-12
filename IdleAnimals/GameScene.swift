@@ -9,7 +9,7 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, MonsterDelegate {
     
     var updateInterval = 0
     let UPDATE_TIMER = 2000
@@ -22,12 +22,11 @@ class GameScene: SKScene {
     var clickDamage = 1
     var monsterIndex = 0
     var coinsInBank = 0
-    var autoAttackDamage = 1
+    var autoAttackDamage = 0
     var critChancePercentage = 1
     var critDamage = 100
     var spellAttackDamage = 0
     
-    //    var monsterHPProgression = [10, 25, 50, 80, 120, 180, 300, 500]
     var monsterHPProgression = [10, 15, 25, 30, 35, 50, 68, 80, 100, 110, 115, 125, 130, 135, 150, 168, 180, 200, 210, 215, 225, 230, 235, 250, 268, 280, 300]
     var attackUpgradeCost = 5
     var autoAttackUpgradeCost = 15
@@ -80,7 +79,7 @@ class GameScene: SKScene {
             "spider",
             "stygian_lizard"
         ]
-        
+
         monsterNameData = [
             "Aerocephal",
             "Arcana Drake",
@@ -125,30 +124,29 @@ class GameScene: SKScene {
         spellButton = self.childNode(withName: "spellButton") as! SKSpriteNode
         critButton = self.childNode(withName: "critButton") as! SKSpriteNode
         
-//        drawMonster(name: monsterImageData[monsterIndex])
+        drawMonster(name: monsterImageData[monsterIndex])
     }
     
-    func drawMonster() {
-        let texture = SKTexture(imageNamed: "spider")
-        var monster = Monster(texture: texture, size: CGSize(width: texture.size().width, height: texture.size().height), position: CGPoint(x: 100, y: 100 * 10), name: "spider")
+    func drawMonster(name: String) {
+        let texture = SKTexture(imageNamed: name)
+        let monster = Monster(texture: texture, size: CGSize(width: texture.size().width, height: texture.size().height), position: CGPoint(x: 100, y: 100 * 10), name: "monster")
+        monster.delegate = self
         monster.zPosition = 1001
+        monster.isUserInteractionEnabled = true
         self.addChild(monster)
         let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 2)
         let sequence = SKAction.sequence([moveUp, moveUp.reversed()])
         monster.run(SKAction.repeatForever(sequence), withKey:  "moving")
         monsterNameText.text = "\(monsterNameData[monsterIndex])"
-        
-//        let monster = Monster(, texture: String(monsterImageData[0]),  name: String(monsterNameData[0]))
     }
     
-//    func nextMonster() {
-//
-//        if monsterIndex >= monsterNameData.count - 1{
-//            monsterIndex = 0
-//        }
-//        drawMonster(name: monsterImageData[monsterIndex])
-//        monsterHealth += monsterHPProgression[monsterIndex]
-//    }
+    func nextMonster() {
+        if monsterIndex >= monsterNameData.count - 1{
+            monsterIndex = 0
+        }
+        drawMonster(name: monsterImageData[monsterIndex])
+        monsterHealth += monsterHPProgression[monsterIndex]
+    }
     
     func generateCoin() {
         let coinSize = CGSize(width: 100.0, height: 100.0)
@@ -165,7 +163,7 @@ class GameScene: SKScene {
     
     func spawnCoin() {
         
-        var coin1 = generateCoin()
+        let coin1 = generateCoin()
         
         var coinValue = Int(arc4random_uniform(25))
         coinValue *= 4
@@ -207,12 +205,13 @@ class GameScene: SKScene {
         }
     }
     
-    func onKill() {
+    func onKill(monster: Monster) {
         if monsterHealth < 1 || monsterHealth == 0 {
+            monster.removeFromParent()
             monsterIndex += 1
             coinsInBank += 10
             spawnCoin()
-//            nextMonster()
+            nextMonster()
 
             levelKills += 1
             
@@ -228,31 +227,30 @@ class GameScene: SKScene {
         return Int(arc4random_uniform(100) + UInt32(critChancePercentage))
     }
     
-    func attack() {
+    func attack(auto: Bool) {
         let critChance = rollCrit()
         print("Crit chance \(critChance)")
-        
-        if critChance <= critChancePercentage {
-            if (monsterHealth <= 0) {
-                onKill()
-            }
+        if auto == true {
+            monsterHealth -= autoAttackDamage
+        } else if critChance <= critChancePercentage {
             monsterHealth -= critDamage
         } else {
             monsterHealth -= clickDamage
         }
         
-        onKill()
-        
         print(monsterHealth)
+    }
+    
+    func monsterClicked(_ monster: Monster) {
+        attack(auto: false)
+        onKill(monster: monster)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let location = touch.location(in: self)
-            
-            if monster.contains(location) {
-                attack()
-            } else if attackButton.contains(location) {
+                        
+            if attackButton.contains(location) {
                 upgradeAttack()
             } else if autoAttackButton.contains(location) {
                 upgradeAutoAttack()
@@ -280,9 +278,7 @@ class GameScene: SKScene {
     }
     
     func autoClick() {
-        monsterHealth -= autoAttackDamage
-        onKill()
-        
+        attack(auto: true)
     }
     
     override func update(_ dt: TimeInterval) {
