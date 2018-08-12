@@ -10,14 +10,70 @@ import SpriteKit
 
 protocol MonsterDelegate {
     func monsterClicked(_ monster: Monster)
+    func monsterDied(_ monster: Monster)
 }
 
 class Monster: SKSpriteNode {
     
+    static var monsterImageData = [
+        "aerocephal",
+        "arcana_drake",
+        "aurum-drakueli",
+        "bat",
+        "daemarbora",
+        "deceleon",
+        "demonic_essence",
+        "dune_crawler",
+        "green_slime",
+        "nagaruda",
+        "rat",
+        "scorpion",
+        "skeleton",
+        "snake",
+        "spider",
+        "stygian_lizard"
+    ]
+    
+    static var monsterNameData = [
+        "Aerocephal",
+        "Arcana Drake",
+        "Aurum Drakueli",
+        "Bat",
+        "Daemarbora",
+        "Deceleon",
+        "Demonic Essence",
+        "Dune Crawler",
+        "Green Slime",
+        "Nagaruda",
+        "Rat",
+        "Scorpion",
+        "Skeleton",
+        "Snake",
+        "Spider",
+        "Stygian Lizard",
+    ]
+    
+    static var monsterHPProgression = [10, 15, 25, 30, 35, 50, 68, 80, 100, 110, 115, 125, 130, 135, 150, 168, 180, 200, 210, 215, 225, 230, 235, 250, 268, 280, 300]
+    
     var delegate: MonsterDelegate?
+    var MAX_HEALTH: Int
+    var health: Int {
+        didSet {
+            if health <= 0 {
+                delegate?.monsterDied(self)
+            }
+        }
+    }
+    var monsterName: String
 
-    init(texture: SKTexture? = nil, size: CGSize, position: CGPoint, color: UIColor? = nil, name: String? = nil) {
+    init(position: CGPoint, color: UIColor? = nil, index: Int) {
+        let texture = SKTexture(imageNamed: Monster.monsterImageData[index % Monster.monsterImageData.count])
+        let size = CGSize(width: texture.size().width, height: texture.size().height)
+        self.health = Monster.monsterHPProgression[index % Monster.monsterHPProgression.count]
+        self.MAX_HEALTH = self.health
+        monsterName = Monster.monsterNameData[index % Monster.monsterNameData.count]
         super.init(texture: texture, color: color ?? .clear, size: size)
+        self.name = "monster"
     }
     
     required init?(coder aDecoder: NSCoder) {
