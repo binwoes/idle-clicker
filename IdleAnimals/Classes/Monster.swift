@@ -57,6 +57,7 @@ class Monster: SKSpriteNode {
     
     var delegate: MonsterDelegate?
     var MAX_HEALTH: Int
+    let BOSS_HEALTH_MULTIPLIER = 3
     var health: Int {
         didSet {
             if health <= 0 {
@@ -66,10 +67,13 @@ class Monster: SKSpriteNode {
     }
     var monsterName: String
 
-    init(position: CGPoint, color: UIColor? = nil, index: Int) {
+    init(position: CGPoint, color: UIColor? = nil, index: Int, isBoss: Bool = false) {
         let texture = SKTexture(imageNamed: Monster.monsterImageData[index % Monster.monsterImageData.count])
         let size = CGSize(width: texture.size().width, height: texture.size().height)
         self.health = Monster.monsterHPProgression[index % Monster.monsterHPProgression.count]
+        if isBoss {
+            self.health *= BOSS_HEALTH_MULTIPLIER
+        }
         self.MAX_HEALTH = self.health
         monsterName = Monster.monsterNameData[index % Monster.monsterNameData.count]
         super.init(texture: texture, color: color ?? .clear, size: size)
