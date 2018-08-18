@@ -12,8 +12,9 @@ import GameplayKit
 class GameScene: SKScene, MonsterDelegate {
     
     var updateInterval = 0
+    let randomNumber = Int(arc4random_uniform(25))
     let UPDATE_TIMER = 2000
-    
+
     var lastUpdateDate: Date? = nil
     
     var currentMonster: Monster?
@@ -196,17 +197,19 @@ class GameScene: SKScene, MonsterDelegate {
     }
     
     func createText(damageText: String, color: UIColor) {
-        let randomNumber = Int(arc4random_uniform(25))
         let text = SKLabelNode(text: damageText)
         text.fontSize = 100
         text.fontColor = color
         text.zPosition = 1002
-        text.position = CGPoint(x: randomNumber, y: 100)
+        text.position = CGPoint(x: (currentMonster?.position.x)!, y: 100 + (currentMonster?.position.y)! )
         text.text = "\(clickDamage)"
         text.fontName = "Helvetica Neue Bold Italic"
         text.fontSize = 60
         self.addChild(text)
-        
+        animateText(text: text)
+    }
+    
+    func animateText(text: SKLabelNode) {
         let fadein = SKAction.fadeIn(withDuration: 0.1)
         let moveRandom = SKAction.moveBy(x: 10, y: 75, duration: 0.1)
         let moveRandom2 = SKAction.moveBy(x: 200, y: 75, duration: 0.1)
