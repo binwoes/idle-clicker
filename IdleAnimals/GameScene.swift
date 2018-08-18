@@ -183,7 +183,9 @@ class GameScene: SKScene, MonsterDelegate {
             createText(damageText: String(damage), color: color)
         }
         currentMonster?.health -= damage
-        
+        if damage > 0 {
+            currentMonster?.animateMonsterDamage()
+        }
         if let monsterHealth = currentMonster?.health {
 //            print(monsterHealth)
         }

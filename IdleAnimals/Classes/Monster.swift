@@ -84,6 +84,12 @@ class Monster: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func animateMonsterDamage() {
+        let randomAngleRadians = CGFloat(Float(arc4random()) / Float(UINT32_MAX) * Float.pi)
+        let moveRandom = SKAction.moveBy(x: -10*cos(randomAngleRadians), y: 10*sin(randomAngleRadians), duration: 0.05)
+        run(SKAction.sequence([moveRandom, moveRandom.reversed()]))
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.delegate?.monsterClicked(self)
     }
