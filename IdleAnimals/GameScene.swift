@@ -179,7 +179,7 @@ class GameScene: SKScene, MonsterDelegate {
             damage = autoAttackDamage
         } else {
             damage = critChance <= critChancePercentage ? critDamage : clickDamage
-            let color: UIColor = critChance >= critChancePercentage ? .white : .red
+            let color: UIColor = critChance <= critChancePercentage ? .red : .white
             createText(damageText: String(damage), color: color)
         }
         currentMonster?.health -= damage
@@ -195,7 +195,6 @@ class GameScene: SKScene, MonsterDelegate {
         text.fontColor = color
         text.zPosition = 1002
         text.position = CGPoint(x: (currentMonster?.position.x)!, y: 100 + (currentMonster?.position.y)! )
-        text.text = "\(clickDamage)"
         text.fontName = "Helvetica Neue Bold Italic"
         text.fontSize = 60
         self.addChild(text)
@@ -207,9 +206,11 @@ class GameScene: SKScene, MonsterDelegate {
         let moveRandom = SKAction.moveBy(x: 10, y: 75, duration: 0.1)
         let moveRandom2 = SKAction.moveBy(x: 200, y: 75, duration: 0.1)
         let moveRandom3 = SKAction.moveBy(x: 10, y: 0, duration: 0.1)
+        let shrink = SKAction.scale(to: 0, duration: 0.2)
+        let shrinkAndMove = SKAction.group([shrink, SKAction.sequence([moveRandom2, moveRandom3])])
         let fadeOut = SKAction.fadeOut(withDuration: 0.1)
         let remove = SKAction.removeFromParent()
-        text.run(SKAction.sequence([fadein, moveRandom, moveRandom2, moveRandom3, fadeOut, remove]))
+        text.run(SKAction.sequence([fadein, moveRandom, shrinkAndMove, fadeOut, remove]))
     }
     
     func monsterClicked(_ monster: Monster) {
