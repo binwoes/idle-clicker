@@ -12,7 +12,6 @@ import GameplayKit
 class GameScene: SKScene, MonsterDelegate {
     
     var updateInterval = 0
-    let randomNumber = Int(arc4random_uniform(25))
     let UPDATE_TIMER = 2000
 
     var lastUpdateDate: Date? = nil
@@ -170,24 +169,18 @@ class GameScene: SKScene, MonsterDelegate {
     
     
     func rollCrit() -> Int {
-        return Int(arc4random_uniform(100) + UInt32(critChancePercentage))
+        return Int(arc4random_uniform(100))
     }
     
     func attack(auto: Bool) {
         let critChance = rollCrit()
         var damage: Int = 0
-        var color: UIColor?
         if auto == true {
             damage = autoAttackDamage
         } else {
             damage = critChance <= critChancePercentage ? critDamage : clickDamage
-            
-            if critChance >= critChancePercentage {
-                color = UIColor.white
-            } else {
-                color = UIColor.red
-            }
-            createText(damageText: String(damage), color: color!)
+            let color: UIColor = critChance >= critChancePercentage ? .white : .red
+            createText(damageText: String(damage), color: color)
         }
         currentMonster?.health -= damage
         
