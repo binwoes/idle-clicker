@@ -174,18 +174,46 @@ class GameScene: SKScene, MonsterDelegate {
     
     func attack(auto: Bool) {
         let critChance = rollCrit()
-        print("Crit chance \(critChance)")
         var damage: Int = 0
+        var color: UIColor?
         if auto == true {
             damage = autoAttackDamage
         } else {
             damage = critChance <= critChancePercentage ? critDamage : clickDamage
+            
+            if critChance >= critChancePercentage {
+                color = UIColor.white
+            } else {
+                color = UIColor.red
+            }
+            createText(damageText: String(damage), color: color!)
         }
         currentMonster?.health -= damage
         
         if let monsterHealth = currentMonster?.health {
-            print(monsterHealth)
+//            print(monsterHealth)
         }
+    }
+    
+    func createText(damageText: String, color: UIColor) {
+        let randomNumber = Int(arc4random_uniform(25))
+        let text = SKLabelNode(text: damageText)
+        text.fontSize = 100
+        text.fontColor = color
+        text.zPosition = 1002
+        text.position = CGPoint(x: randomNumber, y: 100)
+        text.text = "\(clickDamage)"
+        text.fontName = "Helvetica Neue Bold Italic"
+        text.fontSize = 60
+        self.addChild(text)
+        
+        let fadein = SKAction.fadeIn(withDuration: 0.1)
+        let moveRandom = SKAction.moveBy(x: 10, y: 75, duration: 0.1)
+        let moveRandom2 = SKAction.moveBy(x: 200, y: 75, duration: 0.1)
+        let moveRandom3 = SKAction.moveBy(x: 10, y: 0, duration: 0.1)
+        let fadeOut = SKAction.fadeOut(withDuration: 0.1)
+        let remove = SKAction.removeFromParent()
+        text.run(SKAction.sequence([fadein, moveRandom, moveRandom2, moveRandom3, fadeOut, remove]))
     }
     
     func monsterClicked(_ monster: Monster) {
