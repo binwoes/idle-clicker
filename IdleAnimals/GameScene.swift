@@ -34,7 +34,7 @@ class GameScene: SKScene, MonsterDelegate {
     var coinMultiplier = 1
     var level = 1
     var levelKills = 0
-    var levelKillsRequired = 10
+    let LEVEL_KILLS_REQUIRED = 10
     
     var attackButton = SKSpriteNode()
     var autoAttackButton = SKSpriteNode()
@@ -82,7 +82,7 @@ class GameScene: SKScene, MonsterDelegate {
     }
     
     func createMonster() {
-        self.currentMonster = Monster(position: CGPoint(x: 100, y: 100 * 10), index: monstersKilled)
+        self.currentMonster = Monster(position: CGPoint(x: 100, y: 100 * 10), index: monstersKilled, isBoss: levelKills == LEVEL_KILLS_REQUIRED - 1)
         if let monster = self.currentMonster {
             monster.delegate = self
             monster.zPosition = 1001
@@ -160,7 +160,7 @@ class GameScene: SKScene, MonsterDelegate {
 
         levelKills += 1
         
-        if (levelKills >= levelKillsRequired) {
+        if (levelKills >= LEVEL_KILLS_REQUIRED) {
             level += 1;
             levelKills = 0;
         }
@@ -226,7 +226,7 @@ class GameScene: SKScene, MonsterDelegate {
         critChanceCostText.text = "G: \(critChanceUpgradeCost)"
         spellCostText.text = "G: \(spellUpgradeCost)"
         levelText.text = "Level: \(level)"
-        killCountText.text = "Kills: \(levelKills)/\(levelKillsRequired)"
+        killCountText.text = "Kills: \(levelKills)/\(LEVEL_KILLS_REQUIRED)"
     }
     
     override func update(_ dt: TimeInterval) {
